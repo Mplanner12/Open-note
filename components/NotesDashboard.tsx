@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { signOut } from "next-auth/react";
 import { Session } from "next-auth";
 import {
@@ -50,6 +50,10 @@ export default function NotesDashboard({ session }: NotesDashboardProps) {
   );
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [mounted, setMounted] = useState(false);
+
+  // Refs to break dependency cycles in fetchNotes
+  const selectedNoteIdRef = useRef<string | null>(null);
+  const skipAutoSelectRef = useRef(false);
 
   const currentUser = session.user;
   const isGuest = currentUser.id === "user-guest";
@@ -106,6 +110,11 @@ export default function NotesDashboard({ session }: NotesDashboardProps) {
   const toggleTheme = () =>
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
+  // Keep ref in sync with state so fetchNotes can read it without being a dep
+  useEffect(() => {
+    selectedNoteIdRef.current = selectedNote?._id ?? null;
+  }, [selectedNote?._id]);
+
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(handler);
@@ -139,12 +148,16 @@ export default function NotesDashboard({ session }: NotesDashboardProps) {
         );
       });
       setNotes(filtered);
-      if (filtered.length > 0) {
-        const still = filtered.find((n) => n._id === selectedNote?._id);
-        setSelectedNote(still ?? filtered[0]);
-      } else {
-        setSelectedNote(null);
+      // Don't override selection if note creation just happened
+      if (!skipAutoSelectRef.current) {
+        if (filtered.length > 0) {
+          const still = filtered.find((n) => n._id === selectedNoteIdRef.current);
+          setSelectedNote(still ?? filtered[0]);
+        } else {
+          setSelectedNote(null);
+        }
       }
+      skipAutoSelectRef.current = false;
       return;
     }
 
@@ -160,13 +173,17 @@ export default function NotesDashboard({ session }: NotesDashboardProps) {
       if (res.ok) {
         const data = await res.json();
         setNotes(data);
-        if (data.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const still = data.find((n: any) => n._id === selectedNote?._id);
-          setSelectedNote(still ?? data[0]);
-        } else {
-          setSelectedNote(null);
+        // Don't override selection if note creation just happened
+        if (!skipAutoSelectRef.current) {
+          if (data.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const still = data.find((n: any) => n._id === selectedNoteIdRef.current);
+            setSelectedNote(still ?? data[0]);
+          } else {
+            setSelectedNote(null);
+          }
         }
+        skipAutoSelectRef.current = false;
       }
     } catch (err) {
       console.error("Error fetching notes:", err);
@@ -178,7 +195,6 @@ export default function NotesDashboard({ session }: NotesDashboardProps) {
     debouncedSearch,
     category,
     sort,
-    selectedNote?._id,
     isGuest,
     allGuestNotes,
   ]);
@@ -208,7 +224,9 @@ export default function NotesDashboard({ session }: NotesDashboardProps) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+      skipAutoSelectRef.current = true;
       setAllGuestNotes((prev) => [newNote, ...prev]);
+      selectedNoteIdRef.current = newNote._id;
       setSelectedNote(newNote);
       setMobileActiveView("editor");
       return;
@@ -228,6 +246,9 @@ export default function NotesDashboard({ session }: NotesDashboardProps) {
       });
       if (res.ok) {
         const newNote = await res.json();
+        // Mark that the next fetchNotes call must not override this selection
+        skipAutoSelectRef.current = true;
+        selectedNoteIdRef.current = newNote._id;
         setNotes((prev) => [newNote, ...prev]);
         setSelectedNote(newNote);
         setMobileActiveView("editor");

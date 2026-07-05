@@ -20,6 +20,21 @@
   ],
   "notes": [
     {
+      "_id": "note-58o9g5ykf",
+      "title": "Untitled Note",
+      "content": "Start writing...",
+      "category": "General",
+      "tags": [],
+      "visibility": "private",
+      "isPinned": false,
+      "isStarred": false,
+      "authorName": "almussanplanner12@gmail.com",
+      "authorId": "user-3al4abd4d",
+      "orgId": "Plannoriun",
+      "createdAt": "2026-07-05T10:58:44.269Z",
+      "updatedAt": "2026-07-05T10:59:28.725Z"
+    },
+    {
       "_id": "note-default-1",
       "title": "Getting Started",
       "content": "# Welcome to Open Note!\n\nThis note is stored in your local fallback database. You can edit it, add tags, or create new ones.",
