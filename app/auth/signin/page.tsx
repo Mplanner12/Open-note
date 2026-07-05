@@ -6,21 +6,34 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen } from 'lucide-react';
+import {
+  BookOpen,
+  Eye,
+  EyeOff,
+  Code,
+  Palette,
+  PenTool,
+  Briefcase,
+  Crown,
+  Building,
+} from 'lucide-react';
 
 export default function SignInPage() {
   const router = useRouter();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
-  
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('developer');
-  
+  const [orgToggle, setOrgToggle] = useState(false);
+  const [orgName, setOrgName] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [shake, setShake] = useState(false);
   const [showGuestConfirm, setShowGuestConfirm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleGuestLogin = async () => {
     setError('');
@@ -50,6 +63,7 @@ export default function SignInPage() {
   // Field validation error states
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [orgNameError, setOrgNameError] = useState('');
 
   const triggerShake = () => {
     setShake(true);
@@ -62,6 +76,7 @@ export default function SignInPage() {
     setSuccess('');
     setUsernameError('');
     setPasswordError('');
+    setOrgNameError('');
 
     let hasError = false;
 
@@ -79,6 +94,11 @@ export default function SignInPage() {
       hasError = true;
     } else if (mode === 'signup' && password.trim().length < 6) {
       setPasswordError('Password must be at least 6 characters.');
+      hasError = true;
+    }
+
+    if (mode === 'signup' && orgToggle && !orgName.trim()) {
+      setOrgNameError('Workspace name is required.');
       hasError = true;
     }
 
@@ -101,6 +121,7 @@ export default function SignInPage() {
             username: username.trim().toLowerCase(),
             password: password.trim(),
             role: role,
+            orgId: orgToggle && orgName.trim() ? orgName.trim() : undefined,
           }),
         });
 
@@ -143,6 +164,9 @@ export default function SignInPage() {
     setSuccess('');
     setUsernameError('');
     setPasswordError('');
+    setOrgNameError('');
+    setOrgToggle(false);
+    setOrgName('');
     setMode(mode === 'signin' ? 'signup' : 'signin');
   };
 
@@ -198,16 +222,27 @@ export default function SignInPage() {
           </div>
 
           {/* Password Field */}
-          <div className="mb-4">
+          <div className="mb-4 relative">
             <Input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={`w-full h-12 px-5 bg-transparent border rounded-full text-sm text-white placeholder-zinc-600 focus-visible:ring-0 focus:outline-none transition-all ${
+              className={`w-full h-12 pl-5 pr-12 bg-transparent border rounded-full text-sm text-white placeholder-zinc-600 focus-visible:ring-0 focus:outline-none transition-all ${
                 passwordError ? 'border-red-900 focus:border-red-700' : 'border-zinc-855 focus:border-zinc-600'
               }`}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-4 top-3.5 text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
             {passwordError && (
               <span className="text-[10px] text-red-500 px-4 mt-1.5 block text-left">
                 {passwordError}
@@ -221,17 +256,86 @@ export default function SignInPage() {
               {/* Work Role Select Dropdown */}
               <div className="mb-4">
                 <Select value={role} onValueChange={(val) => { if (val) setRole(val); }}>
-                  <SelectTrigger className="w-full h-12 px-5 bg-transparent border border-zinc-850 focus:border-zinc-600 rounded-full text-sm text-zinc-300 transition-all flex items-center justify-between">
+                  <SelectTrigger className="w-full h-12 px-5 bg-transparent border border-zinc-850 focus:border-zinc-600 rounded-full text-sm text-zinc-450 transition-all flex items-center justify-between">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300 text-sm rounded-2xl">
-                    <SelectItem value="developer">Developer</SelectItem>
-                    <SelectItem value="designer">Designer</SelectItem>
-                    <SelectItem value="writer">Writer</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
+                  <SelectContent className="bg-zinc-950 border border-zinc-900 text-zinc-300 text-xs rounded-2xl p-1">
+                    <SelectItem value="developer">
+                      <span className="flex items-center gap-2">
+                        <Code className="h-3.5 w-3.5 text-zinc-500" /> Developer
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="designer">
+                      <span className="flex items-center gap-2">
+                        <Palette className="h-3.5 w-3.5 text-zinc-500" /> Designer
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="writer">
+                      <span className="flex items-center gap-2">
+                        <PenTool className="h-3.5 w-3.5 text-zinc-500" /> Writer / Author
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="manager">
+                      <span className="flex items-center gap-2">
+                        <Briefcase className="h-3.5 w-3.5 text-zinc-500" /> Product Manager
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="founder">
+                      <span className="flex items-center gap-2">
+                        <Crown className="h-3.5 w-3.5 text-zinc-500" /> Founder / Executive
+                      </span>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Join/Create Workspace Toggle */}
+              <div className="mb-4 flex items-center justify-between px-5 py-3.5 bg-zinc-950/45 border border-zinc-900 rounded-3xl">
+                <span className="text-xs text-zinc-400 font-medium flex items-center gap-2 select-none">
+                  <Building className="h-4 w-4 text-zinc-550" />
+                  <span>Use shared Organization workspace</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOrgToggle(!orgToggle);
+                    setOrgName('');
+                    setOrgNameError('');
+                  }}
+                  className={`w-10 h-6 flex items-center rounded-full p-0.5 transition-colors duration-200 cursor-pointer outline-none shrink-0 ${
+                    orgToggle ? 'bg-white' : 'bg-zinc-800'
+                  }`}
+                >
+                  <span
+                    className={`w-5 h-5 rounded-full bg-zinc-950 shadow-md transform transition-transform duration-200 ${
+                      orgToggle ? 'translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Org Workspace Name Input */}
+              {orgToggle && (
+                <div className="mb-4 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <Input
+                    type="text"
+                    placeholder="Workspace Name (e.g. Acme Corp)"
+                    value={orgName}
+                    onChange={(e) => {
+                      setOrgName(e.target.value);
+                      setOrgNameError('');
+                    }}
+                    className={`w-full h-12 px-5 bg-transparent border rounded-full text-sm text-white placeholder-zinc-600 focus-visible:ring-0 focus:outline-none transition-all ${
+                      orgNameError ? 'border-red-900 focus:border-red-700' : 'border-zinc-850 focus:border-zinc-600'
+                    }`}
+                  />
+                  {orgNameError && (
+                    <span className="text-[10px] text-red-500 px-4 mt-1.5 block text-left">
+                      {orgNameError}
+                    </span>
+                  )}
+                </div>
+              )}
             </>
           )}
 

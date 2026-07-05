@@ -6,7 +6,7 @@ import { localDB } from '@/lib/dbFallback';
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-    const { username, password, role } = await req.json();
+    const { username, password, role, orgId } = await req.json();
 
     if (!username || !password || !role) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
         _id: 'user-' + Math.random().toString(36).substring(2, 11),
         username: sanitizedUsername,
         passwordHash,
-        role: role as 'developer' | 'designer' | 'writer' | 'manager',
+        role: role as 'developer' | 'designer' | 'writer' | 'manager' | 'founder',
+        orgId: orgId ? orgId.trim() : undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -40,6 +41,7 @@ export async function POST(req: NextRequest) {
           id: newUser._id,
           username: newUser.username,
           role: newUser.role,
+          orgId: newUser.orgId,
         },
       });
     }
@@ -57,7 +59,8 @@ export async function POST(req: NextRequest) {
     const newUser = await User.create({
       username: sanitizedUsername,
       passwordHash,
-      role: role as 'developer' | 'designer' | 'writer' | 'manager',
+      role: role as 'developer' | 'designer' | 'writer' | 'manager' | 'founder',
+      orgId: orgId ? orgId.trim() : undefined,
     });
 
     return NextResponse.json({
@@ -66,6 +69,7 @@ export async function POST(req: NextRequest) {
         id: newUser._id,
         username: newUser.username,
         role: newUser.role,
+        orgId: newUser.orgId,
       },
     });
   } catch (error) {

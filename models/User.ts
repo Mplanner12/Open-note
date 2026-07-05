@@ -4,7 +4,8 @@ import crypto from 'crypto';
 export interface IUser extends Document {
   username: string;
   passwordHash: string;
-  role: 'developer' | 'designer' | 'writer' | 'manager';
+  role: 'developer' | 'designer' | 'writer' | 'manager' | 'founder';
+  orgId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,7 +27,8 @@ const UserSchema = new Schema<IUser>(
   {
     username: { type: String, required: true, unique: true, index: true },
     passwordHash: { type: String, required: true },
-    role: { type: String, enum: ['developer', 'designer', 'writer', 'manager'], default: 'developer' },
+    role: { type: String, enum: ['developer', 'designer', 'writer', 'manager', 'founder'], default: 'developer' },
+    orgId: { type: String },
   },
   {
     timestamps: true,

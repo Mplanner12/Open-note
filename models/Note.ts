@@ -10,6 +10,7 @@ export interface INote extends Document {
   visibility: 'private' | 'shared';
   authorName: string;
   authorId: string;
+  orgId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,6 +30,7 @@ const NoteSchema = new Schema<INote>(
     visibility: { type: String, enum: ['private', 'shared'], default: 'private' },
     authorName: { type: String, required: true },
     authorId: { type: String, required: true },
+    orgId: { type: String },
   },
   {
     timestamps: true,

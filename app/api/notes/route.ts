@@ -26,7 +26,12 @@ export async function GET(req: NextRequest) {
 
       // Filter by type
       if (type === 'knowledge-base') {
-        notes = notes.filter((n) => n.visibility === 'shared');
+        notes = notes.filter((n) => {
+          if (session.user.orgId) {
+            return n.visibility === 'shared' && n.orgId === session.user.orgId;
+          }
+          return n.visibility === 'shared' && !n.orgId;
+        });
       } else {
         notes = notes.filter((n) => n.authorId === session.user.id);
       }
@@ -68,6 +73,11 @@ export async function GET(req: NextRequest) {
 
     if (type === 'knowledge-base') {
       query.visibility = 'shared';
+      if (session.user.orgId) {
+        query.orgId = session.user.orgId;
+      } else {
+        query.$or = [{ orgId: { $exists: false } }, { orgId: null }];
+      }
     } else {
       query.authorId = session.user.id;
     }
@@ -131,6 +141,7 @@ export async function POST(req: NextRequest) {
         isStarred: isStarred || false,
         authorName: session.user.name || 'Unknown User',
         authorId: session.user.id,
+        orgId: session.user.orgId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -150,6 +161,7 @@ export async function POST(req: NextRequest) {
       isStarred: isStarred || false,
       authorName: session.user.name || 'Unknown User',
       authorId: session.user.id,
+      orgId: session.user.orgId,
     });
 
     return NextResponse.json(note, { status: 201 });

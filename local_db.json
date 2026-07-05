@@ -1,0 +1,40 @@
+{
+  "users": [
+    {
+      "_id": "user-alex",
+      "username": "alex@example.com",
+      "passwordHash": "e6a8e8b6b27e8d35f6063b51b3a4a9c6:d6d37651a2d5f0e9b987c2b5e282c02cbb3e8f7a6c9d7e0f2a91",
+      "role": "developer",
+      "createdAt": "2026-07-05T10:53:08.503Z",
+      "updatedAt": "2026-07-05T10:53:08.503Z"
+    },
+    {
+      "_id": "user-3al4abd4d",
+      "username": "almussanplanner12@gmail.com",
+      "passwordHash": "8b5d991d2b9ceeb3aad44e2506ad77e5:41fc0d53ad188526fb50ef6bd86b4cea1466ece6a4e3f3be11c4906dc5574032d2d7a4292a8599fef8b65faf1ca74a4c5f51d86ee219e448741de9723be142eb",
+      "role": "founder",
+      "orgId": "Plannoriun",
+      "createdAt": "2026-07-05T10:53:08.506Z",
+      "updatedAt": "2026-07-05T10:53:08.507Z"
+    }
+  ],
+  "notes": [
+    {
+      "_id": "note-default-1",
+      "title": "Getting Started",
+      "content": "# Welcome to Open Note!\n\nThis note is stored in your local fallback database. You can edit it, add tags, or create new ones.",
+      "category": "General",
+      "tags": [
+        "getting-started",
+        "local"
+      ],
+      "isPinned": true,
+      "isStarred": true,
+      "visibility": "private",
+      "authorName": "alex@example.com",
+      "authorId": "user-alex",
+      "createdAt": "2026-07-05T10:53:08.503Z",
+      "updatedAt": "2026-07-05T10:53:08.503Z"
+    }
+  ]
+}

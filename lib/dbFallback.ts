@@ -7,7 +7,8 @@ export interface LocalUser {
   _id: string;
   username: string;
   passwordHash: string;
-  role: 'developer' | 'designer' | 'writer' | 'manager';
+  role: 'developer' | 'designer' | 'writer' | 'manager' | 'founder';
+  orgId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,6 +24,7 @@ export interface LocalNote {
   visibility: 'private' | 'shared';
   authorName: string;
   authorId: string;
+  orgId?: string;
   createdAt: string;
   updatedAt: string;
 }

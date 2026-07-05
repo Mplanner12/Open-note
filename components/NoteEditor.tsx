@@ -703,7 +703,7 @@ export default function NoteEditor({
                 {suggestion && (
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 pointer-events-none overflow-hidden text-[15px] leading-relaxed whitespace-pre-wrap break-words p-0.5 md:p-1.5 select-none z-0"
+                    className="absolute inset-0 pointer-events-none overflow-hidden text-[15px] leading-relaxed whitespace-pre-wrap wrap-break-word p-0.5 md:p-1.5 select-none z-0"
                     style={{ fontFamily: "inherit", wordBreak: "break-word" }}
                   >
                     {/* Invisible clone of text to position ghost at cursor */}
